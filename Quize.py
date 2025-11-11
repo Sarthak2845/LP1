@@ -1,0 +1,17 @@
+import tkinter as tk
+
+root = tk.Tk()
+root.title("Quize")
+tk.Label(root, text="Quize", font=("Arial", 16, "bold")).grid(row=0, column=0, columnspan=2, pady=10)
+tk.Label(root, text="1. What is captial of India?").grid(row=1,column=2)
+tk.Radiobutton(root, text="New Delhi", value=1).grid(row=2, column=2)
+tk.Radiobutton(root, text="Mumbai", value=2).grid(row=3, column=2)
+tk.Radiobutton(root, text="Chennai", value=3).grid(row=4, column=2)
+tk.Radiobutton(root, text="Kolkata", value=4).grid(row=5, column=2)
+tk.Label(root, text="2. What is capital of USA?").grid(row=6,column=2)
+tk.Radiobutton(root, text="Washington D.C.", value=1).grid(row=7, column=2)
+tk.Radiobutton(root, text="New York", value=2).grid(row=8, column=2)
+tk.Radiobutton(root, text="Los Angeles", value=3).grid(row=9, column=2)
+tk.Radiobutton(root, text="Chicago", value=4).grid(row=10, column=2)
+tk.Button(root, text="Submit").grid(row=11, column=2, pady=15)
+root.mainloop()
