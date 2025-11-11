@@ -1,125 +1,83 @@
 import java.util.Scanner;
 
-class NonPriorityScheduling {
-
+public class SimplePriorityScheduling {
   public static void main(String[] args) {
-
-    System.out.println("*** Priority Scheduling (Non Preemptive) ***");
-
-    System.out.print("Enter Number of Process: ");
     Scanner sc = new Scanner(System.in);
+
+    System.out.print("Enter number of processes: ");
     int n = sc.nextInt();
-    int process[] = new int[n];
-    int arrivaltime[] = new int[n];
-    int burstTime[] = new int[n];
-    int completionTime[] = new int[n];
-    int priority[] = new int[n];
-    int TAT[] = new int[n];
-    int waitingTime[] = new int[n];
-    int arrivaltimecopy[] = new int[n];
-    int burstTimecopy[] = new int[n];
-    int max = -1, min = 9999;
-    int totalTime = 0, tLap, temp;
-    int minIndex = 0, currentIndex = 0;
-    double avgWT = 0, avgTAT = 0;
+
+    int[] pid = new int[n];
+    int[] at = new int[n];
+    int[] bt = new int[n];
+    int[] pr = new int[n];
+    int[] ct = new int[n];
+    int[] tat = new int[n];
+    int[] wt = new int[n];
+    boolean[] done = new boolean[n];
+
+    // ----- Input -----
     for (int i = 0; i < n; i++) {
-      process[i] = (i + 1);
-      System.out.println("");
-      System.out.print("Enter Arrival Time for processor " + (i + 1) + ":");
-      arrivaltime[i] = sc.nextInt();
-      System.out.print("Enter Burst Time for processor " + (i + 1) + " : ");
-      burstTime[i] = sc.nextInt();
-      System.out.print("Enter Priority for " + (i + 1) + " process: ");
-      priority[i] = sc.nextInt();
+      pid[i] = i + 1;
+      System.out.print("Arrival time of P" + pid[i] + ": ");
+      at[i] = sc.nextInt();
+      System.out.print("Burst time of P" + pid[i] + ": ");
+      bt[i] = sc.nextInt();
+      System.out.print("Priority of P" + pid[i]);
+      pr[i] = sc.nextInt();
     }
+
+    // ----- Sort by arrival time -----
     for (int i = 0; i < n - 1; i++) {
       for (int j = i + 1; j < n; j++) {
-        if (arrivaltime[i] > arrivaltime[j]) {
-          temp = process[i];
-          process[i] = process[j];
-          process[j] = temp;
-          temp = arrivaltime[j];
-          arrivaltime[j] = arrivaltime[i];
-          arrivaltime[i] = temp;
-          temp = priority[j];
-          priority[j] = priority[i];
-          priority[i] = temp;
-          temp = burstTime[j];
-          burstTime[j] = burstTime[i];
-          burstTime[i] = temp;
-        } else if (arrivaltime[i] == arrivaltime[j] && priority[j] > priority[i]) {
-          temp = process[i];
-          process[i] = process[j];
-          process[j] = temp;
-          temp = arrivaltime[j];
-          arrivaltime[j] = arrivaltime[i];
-          arrivaltime[i] = temp;
-          temp = priority[j];
-          priority[j] = priority[i];
-          priority[i] = temp;
-          temp = burstTime[j];
-          burstTime[j] = burstTime[i];
-          burstTime[i] = temp;
+        if (at[i] > at[j]) {
+          int t;
+          t = at[i]; at[i] = at[j]; at[j] = t;
+          t = bt[i]; bt[i] = bt[j]; bt[j] = t;
+          t = pr[i]; pr[i] = pr[j]; pr[j] = t;
+          t = pid[i]; pid[i] = pid[j]; pid[j] = t;
         }
       }
     }
-    System.arraycopy(arrivaltime, 0, arrivaltimecopy, 0, n);
-    System.arraycopy(burstTime, 0, burstTimecopy, 0, n);
 
-    for (int i = 0; i < n; i++) {
-      totalTime += burstTime[i];
-      if (arrivaltime[i] < min) {
-        max = arrivaltime[i];
-      }
-    }
+    // ----- Scheduling -----
+    int time = 0, completed = 0;
+    float avgTAT = 0, avgWT = 0;
 
-    for (int i = 0; i < n; i++) {
-      if (arrivaltime[i] < min) {
-        min = arrivaltime[i];
-        minIndex = i;
-        currentIndex = i;
-      }
-    }
+    while (completed < n) {
+      int idx = -1;
+      int highestPriority = Integer.MAX_VALUE;
 
-    totalTime = min + totalTime;
-    tLap = min;
-    int tot = 0;
-    while (tLap < totalTime) {
+      // find process with highest priority (lowest number) among arrived ones
       for (int i = 0; i < n; i++) {
-        if (arrivaltimecopy[i] <= tLap) {
-          if (priority[i] < priority[minIndex]) {
-            minIndex = i;
-            currentIndex = i;
-          }
+        if (!done[i] && at[i] <= time && pr[i] < highestPriority) {
+          highestPriority = pr[i];
+          idx = i;
         }
       }
-      tLap = tLap + burstTimecopy[currentIndex];
-      completionTime[currentIndex] = tLap;
-      priority[currentIndex] = 9999;
-      for (int i = 0; i < n; i++) {
-        tot = tot + priority[i];
-      }
-    }
-    for (int i = 0; i < n; i++) {
-      TAT[i] = completionTime[i] - arrivaltime[i];
-      waitingTime[i] = TAT[i] - burstTime[i];
-      avgTAT += TAT[i];
-      avgWT += waitingTime[i];
-    }
-    System.out.println("\n*** Priority Scheduling (Non Preemptive) ***");
-    System.out.println("Processor\tArrival time\tBrust time\tCompletion Time\t\tTurn around time\tWaiting time");
-    System.out.println(
-        "----------------------------------------------------------------------------------------------------------");
-    for (int i = 0; i < n; i++) {
-      System.out.println("P" + process[i] + "\t\t" + arrivaltime[i] + "ms\t\t" + burstTime[i] + "ms\t\t"
-          + completionTime[i] + "ms\t\t\t" + TAT[i] + "ms\t\t\t" + waitingTime[i] + "ms");
 
+      // if no process has arrived, increment time
+      if (idx == -1) {
+        time++;
+        continue;
+      }
+
+      // execute that process fully (non-preemptive)
+      time += bt[idx];
+      ct[idx] = time;
+      tat[idx] = ct[idx] - at[idx];
+      wt[idx] = tat[idx] - bt[idx];
+      done[idx] = true;
+      completed++;
+
+      avgTAT += tat[idx];
+      avgWT += wt[idx];
     }
-    avgWT /= n;
-    avgTAT /= n;
-    System.out.println("\nAverage Wating Time: " + avgWT);
-    System.out.println("Average Turn Around Time: " + avgTAT);
+
+    // ----- Output -----
+    System.out.printf("\nAverage Turnaround Time: %.2f\n", avgTAT / n);
+    System.out.printf("Average Waiting Time: %.2f\n", avgWT / n);
+
     sc.close();
-
   }
 }
